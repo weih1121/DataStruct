@@ -1,3 +1,4 @@
+import queue
 B = 0
 R = 1
 
@@ -21,7 +22,7 @@ def bstInsert(root, node, parent=None):
         root.right = bstInsert(root.right, node, root)
     return root
 
-def left_rotate(root, cur):
+def right_rotate(root, cur):
     cur_left  = cur.left
     cur.left = cur_left.right
 
@@ -37,8 +38,9 @@ def left_rotate(root, cur):
 
     cur_left.right = cur
     cur_left.parent, cur.parent = cur.parent, cur_left
-
-def right_rotate(root, cur):
+    return root
+    
+def left_rotate(root, cur):
     cur_right = cur.right
     cur.right = cur_right.left
 
@@ -54,15 +56,16 @@ def right_rotate(root, cur):
     
     cur_right.left = cur
     cur_right.parent, cur.parent = cur.parent, cur_right
+    return root
 
 def insert(root, val):
     node = Node(val)
     root = bstInsert(root, node)
-    fixViolations(root, node)
+    root = fixViolations(root, node)
     return root
 
 def fixViolations(root, cur):
-    while cur != root and cur.parent.color == R and cur.color == R:   
+    while cur != root and cur.parent.color == R and cur.color == R:
         # 循环条件当且仅当父子节点均为红色
         # 如果树仅有一个节点则该节点为根节点，将颜色改为黑色
         parent = cur.parent
@@ -77,7 +80,7 @@ def fixViolations(root, cur):
             else:
                 if cur == parent.right:
                     left_rotate(root, parent)
-                right_rotate(root, grand_parent)
+                root = right_rotate(root, grand_parent)
                 parent.color, grand_parent.color = grand_parent.color, parent.color
         else:
             uncle = grand_parent.left
@@ -91,7 +94,8 @@ def fixViolations(root, cur):
                     right_rotate(root, parent)
                 left_rotate(root, grand_parent)
                 parent.color, grand_parent.color = grand_parent.color, parent.color
-    root.color = BaseException
+    root.color = B
+    return root
 
 
 def delete(root, val):
@@ -100,31 +104,41 @@ def delete(root, val):
 def find(root, val):
     if root:
         if root.val < val:
-            find(root.right, val)
+            return find(root.right, val)
         if root.val > val:
-            find(root.left, val)
+            return find(root.left, val)
         if root.val == val:
             return True
     else:
         return False
 
 
-def get_balance(root):
-    pass
-
 def get_min(root):
-    pass
+    while root:
+        if root.left:
+            root = root.left
+        else:
+            return root
 
 def inOrder(root):
     if root:
         inOrder(root.left)
-
-        try:
-            print(root.val, root.color)
-        except AttributeError:
-            print(root.val, None)
-
+        print(root.val)
         inOrder(root.right)
+
+def levelTravel(root):
+    if not root:
+        return
+    
+    q = queue.Queue()
+    q.put(root)
+    while q:
+        front = q.get()
+        if front:
+            print(front.val)
+            q.put(front.left)
+            q.put(front.right)
+    
 
 
 if __name__ == "__main__":
@@ -132,5 +146,9 @@ if __name__ == "__main__":
     root = None
     for val in vals:
         root = insert(root, val)
+    print('in order')
     inOrder(root)
-    
+    print('level order')
+    levelTravel(root)
+    print(find(root, 3))
+    print(find(root, 6))
