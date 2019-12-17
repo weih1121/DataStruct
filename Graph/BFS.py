@@ -4,7 +4,7 @@ import queue
 class Graph:
     def __init__(self):
         self.graph = defaultdict(list)
-
+        
     def add_edge(self, u, v):
         self.graph[u].append(v)
     
@@ -24,6 +24,9 @@ class Graph:
             for item in self.graph[vertex_pop]:
                 if not visited[item]:
                     q.put(item)
+    
+        
+
     
 if __name__ == "__main__":
     g = Graph() 
